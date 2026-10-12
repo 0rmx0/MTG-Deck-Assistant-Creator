@@ -59,13 +59,15 @@ impl MtgDeckAssistantApp {
     fn new() -> Self {
         let runtime = Runtime::new().expect("runtime tokio");
         let rt = runtime.handle().clone();
+        let settings = Settings::load();
+        let deck_state = DeckState::new(rt, &settings);
         MtgDeckAssistantApp {
-            settings: Settings::load(),
+            settings,
             settings_window: SettingsWindow::default(),
             import_window: ImportWindow::default(),
             collection_window: CollectionWindow::default(),
             ai_builder: AiBuilderWindow::default(),
-            deck_state: DeckState::new(rt),
+            deck_state,
             active_tab: Tab::Deck,
             status: (true, "Prêt à enflammer le meta.".into()),
             _runtime: runtime,
@@ -162,6 +164,7 @@ impl eframe::App for MtgDeckAssistantApp {
         self.ai_builder
             .show(ctx, &mut self.deck_state, &self.settings);
 
+        let storage_warning = self.deck_state.storage.warning();
         egui::TopBottomPanel::bottom("status_bar")
             .frame(
                 egui::Frame::none()
@@ -188,6 +191,14 @@ impl eframe::App for MtgDeckAssistantApp {
                             .color(Theme::TEXT_PRIMARY)
                             .monospace(),
                     );
+                    if let Some(w) = &storage_warning {
+                        ui.add_space(12.0);
+                        ui.label(
+                            egui::RichText::new(format!("⚠ {w}"))
+                                .color(Theme::CORAL)
+                                .monospace(),
+                        );
+                    }
                 });
             });
 

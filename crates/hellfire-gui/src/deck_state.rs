@@ -16,7 +16,7 @@ pub struct DeckState {
 }
 
 impl DeckState {
-    pub fn new(rt: tokio::runtime::Handle) -> Self {
+    pub fn new(rt: tokio::runtime::Handle, settings: &crate::settings::Settings) -> Self {
         DeckState {
             rt,
             deck: Deck::new("Deck sans nom", Format::Commander),
@@ -24,7 +24,7 @@ impl DeckState {
             collection_rx: None,
             ai_rx: None,
             deck_from_ai: None,
-            storage: StorageHandle::new(),
+            storage: StorageHandle::new(settings),
         }
     }
 
@@ -76,6 +76,6 @@ impl DeckState {
 
 impl Default for DeckState {
     fn default() -> Self {
-        Self::new(tokio::runtime::Handle::current())
+        unimplemented!()
     }
 }

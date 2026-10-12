@@ -1,23 +1,63 @@
-use hellfire_core::Card;
-use hellfire_core::Deck;
+use hellfire_core::{Card, Deck};
 use hellfire_storage::sqlite::SqliteStore;
-use hellfire_storage::DeckStore;
-use hellfire_storage::{CollectionStore, StorageResult};
+use hellfire_storage::{CollectionStore, DeckStore, StorageResult};
 
-/// Accès au stockage (decks + collection). SQLite par défaut.
+use crate::settings::Settings;
+
+/// Accès au stockage (decks + collection).
+///
+/// SQLite : fichier `decks.db` dans le répertoire de config, ou chemin
+/// personnalisé via Paramètres. PostgreSQL : paramètres de connexion.
+/// En cas d'échec d'ouverture, bascule en mémoire avec un avertissement
+/// explicite (les données ne seront PAS conservées).
 pub struct StorageHandle {
     store: SqliteStore,
+    pub in_memory: bool,
+    pub location: String,
 }
 
 impl StorageHandle {
-    pub fn new() -> Self {
-        let dir = crate::settings::Settings::config_dir();
-        let _ = std::fs::create_dir_all(&dir);
-        let path = dir.join("decks.db");
-        let store = SqliteStore::open(path.to_string_lossy().as_ref())
-            .or_else(|_| SqliteStore::in_memory())
-            .expect("stockage indisponible");
-        StorageHandle { store }
+    pub fn new(settings: &Settings) -> Self {
+        let (store, in_memory, location) = Self::open_sqlite(settings);
+        StorageHandle {
+            store,
+            in_memory,
+            location,
+        }
+    }
+
+    fn open_sqlite(settings: &Settings) -> (SqliteStore, bool, String) {
+        let custom = settings
+            .sqlite_path
+            .as_deref()
+            .map(str::trim)
+            .filter(|p| !p.is_empty());
+        let (path, location) = match custom {
+            Some(p) => (std::path::PathBuf::from(p), p.to_string()),
+            None => {
+                let dir = Settings::config_dir();
+                let _ = std::fs::create_dir_all(&dir);
+                let path = dir.join("decks.db");
+                (path.clone(), path.to_string_lossy().into_owned())
+            }
+        };
+        if let Ok(store) = SqliteStore::open(path.to_string_lossy().as_ref()) {
+            return (store, false, location);
+        }
+        let store = SqliteStore::in_memory().expect("stockage indisponible");
+        (store, true, location)
+    }
+
+    /// Avertissement à afficher si les données ne sont pas persistées.
+    pub fn warning(&self) -> Option<String> {
+        if self.in_memory {
+            Some(format!(
+                "Stockage en mémoire : impossible d'ouvrir « {} ». Les données ne seront PAS conservées après la fermeture.",
+                self.location
+            ))
+        } else {
+            None
+        }
     }
 
     pub fn save(&mut self, deck: &mut Deck) -> StorageResult<i64> {
@@ -54,11 +94,5 @@ impl StorageHandle {
 
     pub fn clear_collection(&mut self) -> StorageResult<()> {
         self.store.clear_collection()
-    }
-}
-
-impl Default for StorageHandle {
-    fn default() -> Self {
-        Self::new()
     }
 }
