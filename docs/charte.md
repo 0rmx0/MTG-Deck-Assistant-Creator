@@ -3,7 +3,7 @@
 Identité : punk underground rebelle, gravure/scratchboard, clair-obscur
 dramatique, masque cousu comme emblème.
 
-Les tokens couleur sont encodés dans `crates/hellfire-tui/src/theme.rs`
+Les tokens couleur sont encodés dans `crates/hellfire-gui/src/theme.rs`
 (constantes `Theme::*`, valeurs RGB identiques aux hex de la charte).
 
 ## Territoire visuel
@@ -14,7 +14,7 @@ Les tokens couleur sont encodés dans `crates/hellfire-tui/src/theme.rs`
 
 ## Palette (règle 70/20/10)
 
-| Rôle              | Nom          | Hex       | Constante TUI      |
+| Rôle              | Nom          | Hex       | Constante           |
 |-------------------|--------------|-----------|--------------------|
 | Fond principal    | Noir bitume  | `#0A0A0A` | `BG_PRIMARY`       |
 | Fond secondaire   | Charbon      | `#1A1714` | `BG_SECONDARY`     |
