@@ -5,6 +5,7 @@ members = [
     "crates/hellfire-api",
     "crates/hellfire-storage",
     "crates/hellfire-tui",
+    "crates/hellfire-gui",
 ]
 
 [workspace.package]
