@@ -1,3 +1,5 @@
+mod ai_builder;
+mod collection_window;
 mod deck_state;
 mod import_window;
 mod secret_store;
@@ -9,6 +11,8 @@ mod theme;
 use eframe::egui;
 use tokio::runtime::Runtime;
 
+use crate::ai_builder::AiBuilderWindow;
+use crate::collection_window::CollectionWindow;
 use crate::deck_state::DeckState;
 use crate::import_window::ImportWindow;
 use crate::settings::Settings;
@@ -36,9 +40,19 @@ struct MtgDeckAssistantApp {
     settings: Settings,
     settings_window: SettingsWindow,
     import_window: ImportWindow,
+    collection_window: CollectionWindow,
+    ai_builder: AiBuilderWindow,
     deck_state: DeckState,
     status: (bool, String),
+    active_tab: Tab,
     _runtime: Runtime,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Tab {
+    Deck,
+    Collection,
+    Decks,
 }
 
 impl MtgDeckAssistantApp {
@@ -49,7 +63,10 @@ impl MtgDeckAssistantApp {
             settings: Settings::load(),
             settings_window: SettingsWindow::default(),
             import_window: ImportWindow::default(),
+            collection_window: CollectionWindow::default(),
+            ai_builder: AiBuilderWindow::default(),
             deck_state: DeckState::new(rt),
+            active_tab: Tab::Deck,
             status: (true, "Prêt à enflammer le meta.".into()),
             _runtime: runtime,
         }
@@ -81,6 +98,14 @@ impl eframe::App for MtgDeckAssistantApp {
                         self.import_window.open();
                         ui.close_menu();
                     }
+                    if ui.button("Ma collection…").clicked() {
+                        self.collection_window.open();
+                        ui.close_menu();
+                    }
+                    if ui.button("Créer un deck avec l'IA…").clicked() {
+                        self.ai_builder.open(self.deck_state.deck.format.label());
+                        ui.close_menu();
+                    }
                     if ui.button("Paramètres…").clicked() {
                         self.settings_window.open();
                         ui.close_menu();
@@ -105,6 +130,37 @@ impl eframe::App for MtgDeckAssistantApp {
             self.status = (ok, msg);
             ctx.request_repaint();
         }
+        if let Some(result) = self.deck_state.poll_collection() {
+            self.collection_window.on_card_resolved(result);
+            ctx.request_repaint();
+        }
+        if let Some(result) = self.deck_state.poll_ai() {
+            self.ai_builder.on_proposal(result);
+            ctx.request_repaint();
+        }
+        if let Some(result) = self.deck_state.poll_deck_from_ai() {
+            match result {
+                Ok(deck) => {
+                    self.status = (
+                        true,
+                        format!(
+                            "Deck « {} » généré et enregistré ({} cartes).",
+                            deck.name,
+                            deck.stats().total_cards
+                        ),
+                    );
+                    self.ai_builder.open = false;
+                }
+                Err(e) => {
+                    self.ai_builder.status = Some((false, e.clone()));
+                    self.status = (false, e);
+                }
+            }
+            ctx.request_repaint();
+        }
+        self.collection_window.show(ctx, &mut self.deck_state);
+        self.ai_builder
+            .show(ctx, &mut self.deck_state, &self.settings);
 
         egui::TopBottomPanel::bottom("status_bar")
             .frame(
@@ -189,55 +245,84 @@ impl eframe::App for MtgDeckAssistantApp {
                     .inner_margin(egui::Margin::same(10.0)),
             )
             .show(ctx, |ui| {
-                egui::SidePanel::left("squad")
-                    .resizable(false)
-                    .default_width(ui.available_width() * 0.40)
-                    .frame(
-                        egui::Frame::group(ui.style())
-                            .fill(Theme::BG_SECONDARY)
-                            .stroke(egui::Stroke::new(1.0_f32, Theme::BG_ELEVATED))
-                            .rounding(egui::Rounding::same(2.0))
-                            .inner_margin(egui::Margin::same(10.0)),
-                    )
-                    .show_inside(ui, |ui| {
-                        Theme::heading(ui, "TON ESCOUADE");
-                        ui.add_space(6.0);
-                        Theme::cutter_separator(ui);
-                        ui.add_space(6.0);
-                        egui::ScrollArea::vertical().show(ui, |ui| {
-                            if self.deck_state.deck.entries.is_empty() {
-                                Theme::meta(ui, "Aucune carte recrutée — importe une decklist.");
-                            }
-                            for entry in &self.deck_state.deck.entries {
-                                let side = if entry.sideboard { " [SB]" } else { "" };
-                                ui.horizontal(|ui| {
-                                    ui.label(
-                                        egui::RichText::new(format!("{:>2}x ", entry.quantity))
-                                            .color(Theme::EMBER)
-                                            .monospace()
-                                            .strong(),
-                                    );
-                                    ui.label(
-                                        egui::RichText::new(format!(
-                                            "{}{}",
-                                            entry.card.name, side
-                                        ))
-                                        .color(Theme::TEXT_PRIMARY),
-                                    );
-                                    if let Some(mana) = &entry.card.mana_cost {
-                                        ui.label(
-                                            egui::RichText::new(mana.to_notation())
-                                                .color(Theme::TEXT_SECONDARY)
-                                                .small()
-                                                .monospace(),
-                                        );
-                                    }
-                                });
-                            }
-                        });
+                ui.horizontal(|ui| {
+                    let tabs = [
+                        (Tab::Deck, "Mon deck"),
+                        (Tab::Collection, "Ma collection"),
+                        (Tab::Decks, "Mes decks"),
+                    ];
+                    for (tab, label) in tabs {
+                        if ui.selectable_label(self.active_tab == tab, label).clicked() {
+                            self.active_tab = tab;
+                        }
+                    }
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        if Theme::primary_button(ui, "Créer avec l'IA").clicked() {
+                            self.ai_builder.open(self.deck_state.deck.format.label());
+                        }
                     });
+                });
+                ui.add_space(6.0);
+                match self.active_tab {
+                    Tab::Deck => self.deck_tab(ui, ctx),
+                    Tab::Collection => self.collection_tab(ui),
+                    Tab::Decks => self.decks_tab(ui),
+                }
+            });
 
-                egui::SidePanel::right("intel")
+        ctx.request_repaint_after(std::time::Duration::from_millis(250));
+    }
+}
+
+impl MtgDeckAssistantApp {
+    fn deck_tab(&mut self, ui: &mut egui::Ui, ctx: &egui::Context) {
+        {
+            egui::SidePanel::left("squad")
+                .resizable(false)
+                .default_width(ui.available_width() * 0.40)
+                .frame(
+                    egui::Frame::group(ui.style())
+                        .fill(Theme::BG_SECONDARY)
+                        .stroke(egui::Stroke::new(1.0_f32, Theme::BG_ELEVATED))
+                        .rounding(egui::Rounding::same(2.0))
+                        .inner_margin(egui::Margin::same(10.0)),
+                )
+                .show_inside(ui, |ui| {
+                    Theme::heading(ui, "TON ESCOUADE");
+                    ui.add_space(6.0);
+                    Theme::cutter_separator(ui);
+                    ui.add_space(6.0);
+                    egui::ScrollArea::vertical().show(ui, |ui| {
+                        if self.deck_state.deck.entries.is_empty() {
+                            Theme::meta(ui, "Aucune carte recrutée — importe une decklist.");
+                        }
+                        for entry in &self.deck_state.deck.entries {
+                            let side = if entry.sideboard { " [SB]" } else { "" };
+                            ui.horizontal(|ui| {
+                                ui.label(
+                                    egui::RichText::new(format!("{:>2}x ", entry.quantity))
+                                        .color(Theme::EMBER)
+                                        .monospace()
+                                        .strong(),
+                                );
+                                ui.label(
+                                    egui::RichText::new(format!("{}{}", entry.card.name, side))
+                                        .color(Theme::TEXT_PRIMARY),
+                                );
+                                if let Some(mana) = &entry.card.mana_cost {
+                                    ui.label(
+                                        egui::RichText::new(mana.to_notation())
+                                            .color(Theme::TEXT_SECONDARY)
+                                            .small()
+                                            .monospace(),
+                                    );
+                                }
+                            });
+                        }
+                    });
+                });
+
+            egui::SidePanel::right("intel")
                     .resizable(false)
                     .default_width(ui.available_width() * 0.62)
                     .frame(egui::Frame::none())
@@ -285,6 +370,24 @@ impl eframe::App for MtgDeckAssistantApp {
                                             {
                                                 self.raise_fist();
                                             }
+                                            if Theme::secondary_button(ui, "Deck vers collection").clicked()
+                                            {
+                                                let mut count = 0u32;
+                                                for entry in &self.deck_state.deck.entries {
+                                                    if self
+                                                        .deck_state
+                                                        .storage
+                                                        .upsert_card(&entry.card, entry.quantity)
+                                                        .is_ok()
+                                                    {
+                                                        count += entry.quantity;
+                                                    }
+                                                }
+                                                self.status = (
+                                                    true,
+                                                    format!("{count} cartes ajoutées à la collection."),
+                                                );
+                                            }
                                             if Theme::secondary_button(ui, "Quitter").clicked()
                                             {
                                                 ctx.send_viewport_cmd(egui::ViewportCommand::Close);
@@ -298,9 +401,137 @@ impl eframe::App for MtgDeckAssistantApp {
                                     });
                             });
                     });
-            });
+        }
+    }
 
-        ctx.request_repaint_after(std::time::Duration::from_millis(250));
+    fn collection_tab(&mut self, ui: &mut egui::Ui) {
+        let collection = self
+            .deck_state
+            .storage
+            .load_collection()
+            .unwrap_or_default();
+        let total: u32 = collection.iter().map(|(_, q)| q).sum();
+        egui::Frame::group(ui.style())
+            .fill(Theme::BG_SECONDARY)
+            .stroke(egui::Stroke::new(1.0_f32, Theme::BG_ELEVATED))
+            .rounding(egui::Rounding::same(2.0))
+            .inner_margin(egui::Margin::same(10.0))
+            .show(ui, |ui| {
+                Theme::heading(ui, "MA COLLECTION");
+                ui.add_space(6.0);
+                Theme::cutter_separator(ui);
+                ui.add_space(6.0);
+                ui.horizontal(|ui| {
+                    Theme::meta(
+                        ui,
+                        &format!("{} cartes distinctes · {} cartes au total", collection.len(), total),
+                    );
+                    if ui.button("Gérer la collection…").clicked() {
+                        self.collection_window.open();
+                    }
+                });
+                ui.add_space(6.0);
+                egui::ScrollArea::vertical().show(ui, |ui| {
+                    if collection.is_empty() {
+                        Theme::meta(ui, "Aucune carte — ouvre « Gérer la collection » ou importe une decklist dans ta collection.");
+                    }
+                    for (card, qty) in &collection {
+                        ui.horizontal(|ui| {
+                            ui.label(
+                                egui::RichText::new(format!("{qty:>3}x "))
+                                    .color(Theme::EMBER)
+                                    .monospace()
+                                    .strong(),
+                            );
+                            ui.label(&card.name);
+                            ui.label(
+                                egui::RichText::new(card.type_line.clone())
+                                    .color(Theme::TEXT_SECONDARY)
+                                    .small(),
+                            );
+                            ui.with_layout(
+                                egui::Layout::right_to_left(egui::Align::Center),
+                                |ui| {
+                                    if ui.button("Ajouter au deck").clicked() {
+                                        let _ = self.deck_state.deck.recruit(card.clone(), 1, false);
+                                        self.status = (
+                                            true,
+                                            format!("{} ajoutée au deck.", card.name),
+                                        );
+                                    }
+                                },
+                            );
+                        });
+                    }
+                });
+            });
+    }
+
+    fn decks_tab(&mut self, ui: &mut egui::Ui) {
+        let decks = self.deck_state.storage.list_decks().unwrap_or_default();
+        egui::Frame::group(ui.style())
+            .fill(Theme::BG_SECONDARY)
+            .stroke(egui::Stroke::new(1.0_f32, Theme::BG_ELEVATED))
+            .rounding(egui::Rounding::same(2.0))
+            .inner_margin(egui::Margin::same(10.0))
+            .show(ui, |ui| {
+                Theme::heading(ui, "MES DECKS");
+                ui.add_space(6.0);
+                Theme::cutter_separator(ui);
+                ui.add_space(6.0);
+                Theme::meta(ui, &format!("{} deck(s) enregistré(s)", decks.len()));
+                ui.add_space(6.0);
+                egui::ScrollArea::vertical().show(ui, |ui| {
+                    if decks.is_empty() {
+                        Theme::meta(
+                            ui,
+                            "Aucun deck — importe une decklist ou génère-en un avec l'IA.",
+                        );
+                    }
+                    for (id, name, format) in decks {
+                        ui.horizontal(|ui| {
+                            ui.label(
+                                egui::RichText::new(format!("#{id:<4}"))
+                                    .color(Theme::CYAN)
+                                    .monospace(),
+                            );
+                            ui.label(&name);
+                            ui.label(
+                                egui::RichText::new(format)
+                                    .color(Theme::TEXT_SECONDARY)
+                                    .small(),
+                            );
+                            ui.with_layout(
+                                egui::Layout::right_to_left(egui::Align::Center),
+                                |ui| {
+                                    if ui.button("Ouvrir").clicked() {
+                                        match self.deck_state.storage.load_deck(id) {
+                                            Ok(Some(deck)) => {
+                                                self.deck_state.deck = deck;
+                                                self.active_tab = Tab::Deck;
+                                                self.status =
+                                                    (true, format!("Deck « {name} » chargé."));
+                                            }
+                                            Ok(None) => {
+                                                self.status = (false, "Deck introuvable.".into());
+                                            }
+                                            Err(e) => self.status = (false, e.to_string()),
+                                        }
+                                    }
+                                    if ui.button("Supprimer").clicked() {
+                                        if let Err(e) = self.deck_state.storage.delete_deck(id) {
+                                            self.status = (false, e.to_string());
+                                        } else {
+                                            self.status =
+                                                (true, format!("Deck « {name} » supprimé."));
+                                        }
+                                    }
+                                },
+                            );
+                        });
+                    }
+                });
+            });
     }
 }
 
