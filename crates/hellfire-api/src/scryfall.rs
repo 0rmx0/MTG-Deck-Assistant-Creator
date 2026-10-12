@@ -36,7 +36,7 @@ struct SfCard {
     #[serde(default)]
     prices: SfPrices,
     #[serde(default)]
-    legalities: HashMap<String, Option<bool>>,
+    legalities: HashMap<String, String>,
 }
 
 #[derive(Deserialize, Default)]
@@ -98,7 +98,7 @@ impl From<SfCard> for Card {
                 Format::Brawl,
             ] {
                 if k == format_key(f) {
-                    legalities.insert(f, v.unwrap_or(false));
+                    legalities.insert(f, v == "legal");
                 }
             }
         }
