@@ -45,7 +45,9 @@ impl EdhrecClient {
             .send()
             .await?
             .error_for_status()
-            .map_err(|e| ApiError::BadResponse(format!("identité « {color_identity} » vide : {e}")))?
+            .map_err(|e| {
+                ApiError::BadResponse(format!("identité « {color_identity} » vide : {e}"))
+            })?
             .json()
             .await?;
         let list = resp
@@ -60,11 +62,9 @@ impl EdhrecClient {
                 let name = card
                     .get("card")
                     .or_else(|| card.get("name"))
-                    .and_then(|c| {
-                        match c.get("name") {
-                            Some(n) => Some(n.clone()),
-                            None => c.as_str().map(|s| serde_json::Value::String(s.to_string())),
-                        }
+                    .and_then(|c| match c.get("name") {
+                        Some(n) => Some(n.clone()),
+                        None => c.as_str().map(|s| serde_json::Value::String(s.to_string())),
                     })
                     .and_then(|n| match n {
                         serde_json::Value::String(s) => Some(s),

@@ -35,9 +35,7 @@ impl ScryfallClient {
                         c
                     }
                     Err(e) => {
-                        import
-                            .failed
-                            .push((entry.clone(), e.to_string()));
+                        import.failed.push((entry.clone(), e.to_string()));
                         continue;
                     }
                 }

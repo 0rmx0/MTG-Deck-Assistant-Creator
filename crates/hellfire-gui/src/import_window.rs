@@ -86,7 +86,11 @@ impl ImportWindow {
         if let Some((ok, msg)) = &self.status {
             ui.add_space(4.0);
             ui.colored_label(
-                if *ok { egui::Color32::from_rgb(140, 200, 120) } else { egui::Color32::from_rgb(235, 100, 90) },
+                if *ok {
+                    egui::Color32::from_rgb(140, 200, 120)
+                } else {
+                    egui::Color32::from_rgb(235, 100, 90)
+                },
                 msg,
             );
         }
@@ -114,20 +118,18 @@ impl ImportWindow {
             self.deck_name.trim().to_string()
         };
         let format = deck_state.deck.format;
-        let (tx, rx) =
-            tokio::sync::mpsc::channel::<(bool, String, Option<hellfire_core::Deck>)>(1);
+        let (tx, rx) = tokio::sync::mpsc::channel::<(bool, String, Option<hellfire_core::Deck>)>(1);
         deck_state.import_rx = Some(rx);
         let ctx = ctx.clone();
 
-        tokio::spawn(async move {
+        deck_state.rt.spawn(async move {
             let result = client.import_decklist(&entries).await;
             let (ok, msg, resolved_deck) = match result {
                 Ok(import) => {
                     let mut deck = hellfire_core::Deck::new(name, format);
                     let mut errors = Vec::new();
                     for (entry, card) in &import.resolved {
-                        if let Err(e) =
-                            deck.recruit(card.clone(), entry.quantity, entry.sideboard)
+                        if let Err(e) = deck.recruit(card.clone(), entry.quantity, entry.sideboard)
                         {
                             errors.push(format!("{} ({e})", entry.name));
                         }

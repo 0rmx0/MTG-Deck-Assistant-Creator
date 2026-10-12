@@ -111,7 +111,11 @@ impl Deck {
             }
             identity = identity.union(&e.card.color_identity);
         }
-        s.avg_cmc = if cmc_cards > 0 { cmc_total / cmc_cards as f32 } else { 0.0 };
+        s.avg_cmc = if cmc_cards > 0 {
+            cmc_total / cmc_cards as f32
+        } else {
+            0.0
+        };
         s.colors = identity;
         s
     }
@@ -130,7 +134,9 @@ impl Deck {
             if e.quantity > self.format.max_copies() {
                 return Err(CoreError::InvalidDeck(format!(
                     "{} exemplaires de {} — la loi c'est {} max",
-                    e.quantity, e.card.name, self.format.max_copies()
+                    e.quantity,
+                    e.card.name,
+                    self.format.max_copies()
                 )));
             }
         }

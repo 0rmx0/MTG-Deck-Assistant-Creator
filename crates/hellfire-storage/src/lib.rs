@@ -1,3 +1,4 @@
+pub mod collection;
 pub mod postgres;
 pub mod sqlite;
 
@@ -15,6 +16,8 @@ pub enum StorageError {
 }
 
 pub type StorageResult<T> = std::result::Result<T, StorageError>;
+
+pub use collection::CollectionStore;
 
 pub trait DeckStore {
     fn save_deck(&mut self, deck: &Deck) -> StorageResult<i64>;

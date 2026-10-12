@@ -54,7 +54,8 @@ impl Theme {
 
         // Bordures 1 px brun sombre, pas d'ombres portées.
         style.visuals.window_stroke = egui::Stroke::new(1.0_f32, Self::BG_ELEVATED);
-        style.visuals.widgets.noninteractive.bg_stroke = egui::Stroke::new(1.0_f32, Self::BG_ELEVATED);
+        style.visuals.widgets.noninteractive.bg_stroke =
+            egui::Stroke::new(1.0_f32, Self::BG_ELEVATED);
         style.visuals.widgets.inactive.bg_stroke = egui::Stroke::new(1.0_f32, Self::BG_ELEVATED);
         style.visuals.widgets.hovered.bg_stroke = egui::Stroke::new(1.0_f32, Self::BG_ELEVATED);
         style.visuals.widgets.active.bg_stroke = egui::Stroke::new(1.0_f32, Self::CORAL);
@@ -138,7 +139,7 @@ impl Theme {
     }
 
     /// Bouton primaire : fond corail, texte noir, majuscules.
-    /// « Lever le poing », « Recruter »…
+    /// Boutons d'action principaux et secondaires.
     pub fn primary_button(ui: &mut egui::Ui, label: &str) -> egui::Response {
         let button = egui::Button::new(
             egui::RichText::new(label.to_uppercase())
@@ -187,17 +188,10 @@ impl Theme {
         let painter_bar = bar;
         frame.show(ui, |ui| {
             ui.horizontal(|ui| {
-                let (rect, _) = ui.allocate_exact_size(
-                    egui::vec2(4.0, 16.0),
-                    egui::Sense::hover(),
-                );
+                let (rect, _) = ui.allocate_exact_size(egui::vec2(4.0, 16.0), egui::Sense::hover());
                 ui.painter()
                     .rect_filled(rect, egui::Rounding::same(0.0_f32), painter_bar);
-                ui.add(
-                    egui::Label::new(
-                        egui::RichText::new(msg).color(text_color),
-                    ),
-                );
+                ui.add(egui::Label::new(egui::RichText::new(msg).color(text_color)));
             });
         });
     }
@@ -215,9 +209,7 @@ impl Theme {
             })
             .inner_margin(egui::Margin::symmetric(8.0, 2.0));
         frame.show(ui, |ui| {
-            ui.add(
-                egui::Label::new(egui::RichText::new(label).color(Self::CYAN).small()).extend(),
-            );
+            ui.add(egui::Label::new(egui::RichText::new(label).color(Self::CYAN).small()).extend());
         });
     }
 }
