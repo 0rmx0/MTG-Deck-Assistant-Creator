@@ -119,7 +119,7 @@ impl ImportWindow {
         deck_state.import_rx = Some(rx);
         let ctx = ctx.clone();
 
-        tokio::spawn(async move {
+        deck_state.rt.spawn(async move {
             let result = client.import_decklist(&entries).await;
             let (ok, msg, resolved_deck) = match result {
                 Ok(import) => {

@@ -44,12 +44,12 @@ struct MtgDeckAssistantApp {
 impl MtgDeckAssistantApp {
     fn new() -> Self {
         let runtime = Runtime::new().expect("runtime tokio");
-        let _ = runtime;
+        let rt = runtime.handle().clone();
         MtgDeckAssistantApp {
             settings: Settings::load(),
             settings_window: SettingsWindow::default(),
             import_window: ImportWindow::default(),
-            deck_state: DeckState::new(),
+            deck_state: DeckState::new(rt),
             status: (true, "Prêt à enflammer le meta.".into()),
             _runtime: runtime,
         }

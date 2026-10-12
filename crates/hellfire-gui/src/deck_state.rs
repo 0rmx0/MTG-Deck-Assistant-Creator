@@ -4,6 +4,7 @@ use crate::storage_handle::StorageHandle;
 
 /// État partagé du deck courant de la GUI.
 pub struct DeckState {
+    pub rt: tokio::runtime::Handle,
     pub deck: Deck,
     pub import_rx:
         Option<tokio::sync::mpsc::Receiver<(bool, String, Option<Deck>)>>,
@@ -11,8 +12,9 @@ pub struct DeckState {
 }
 
 impl DeckState {
-    pub fn new() -> Self {
+    pub fn new(rt: tokio::runtime::Handle) -> Self {
         DeckState {
+            rt,
             deck: Deck::new("Deck sans nom", Format::Commander),
             import_rx: None,
             storage: StorageHandle::new(),
@@ -36,6 +38,6 @@ impl DeckState {
 
 impl Default for DeckState {
     fn default() -> Self {
-        Self::new()
+        Self::new(tokio::runtime::Handle::current())
     }
 }
