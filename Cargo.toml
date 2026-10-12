@@ -1,0 +1,32 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/hellfire-core",
+    "crates/hellfire-api",
+    "crates/hellfire-storage",
+    "crates/hellfire-tui",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+hellfire-core = { path = "crates/hellfire-core" }
+hellfire-api = { path = "crates/hellfire-api" }
+hellfire-storage = { path = "crates/hellfire-storage" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.32", features = ["bundled"] }
+postgres = "0.19"
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+thiserror = "2"
+ratatui = "0.29"
+crossterm = "0.28"
+anyhow = "1"
+
+[profile.release]
+lto = true
+strip = true
