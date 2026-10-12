@@ -138,7 +138,7 @@ impl Theme {
     }
 
     /// Bouton primaire : fond corail, texte noir, majuscules.
-    /// « Lever le poing », « Recruter »…
+    /// Boutons d'action principaux et secondaires.
     pub fn primary_button(ui: &mut egui::Ui, label: &str) -> egui::Response {
         let button = egui::Button::new(
             egui::RichText::new(label.to_uppercase())

@@ -55,14 +55,14 @@ impl MtgDeckAssistantApp {
         }
     }
 
-    /// « Lever le poing » : valider le deck courant.
+    /// Valider le deck courant.
     fn raise_fist(&mut self) {
         match self.deck_state.deck.validate() {
             Ok(stats) => {
                 self.status = (
                     true,
                     format!(
-                        "Deck validé : {} cartes, CMC moyen {:.2}. Le poing est levé.",
+                        "Deck validé : {} cartes, CMC moyen {:.2}.",
                         stats.total_cards, stats.avg_cmc
                     ),
                 );
@@ -85,7 +85,7 @@ impl eframe::App for MtgDeckAssistantApp {
                         self.settings_window.open();
                         ui.close_menu();
                     }
-                    if ui.button("Se replier").clicked() {
+                    if ui.button("Quitter").clicked() {
                         ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                     }
                 });
@@ -272,22 +272,20 @@ impl eframe::App for MtgDeckAssistantApp {
                                         Theme::cutter_separator(ui);
                                         ui.add_space(8.0);
                                         ui.horizontal(|ui| {
-                                            if Theme::primary_button(ui, "Recruter").clicked() {
+                                            if Theme::primary_button(ui, "Ajouter une carte").clicked() {
                                                 self.import_window.open();
                                             }
-                                            if Theme::secondary_button(ui, "Sabotage").clicked() {
+                                            if Theme::secondary_button(ui, "Retirer").clicked() {
                                                 self.status = (
                                                     false,
-                                                    "Sabotage : sélectionne une carte dans l'escouade pour la retirer.".into(),
+                                                    "Retirer : sélectionne une carte dans le deck pour la retirer.".into(),
                                                 );
                                             }
-                                            if Theme::primary_button(ui, "Lever le poing")
-                                                .clicked()
+                                            if Theme::primary_button(ui, "Valider le deck").clicked()
                                             {
                                                 self.raise_fist();
                                             }
-                                            if Theme::secondary_button(ui, "Se replier")
-                                                .clicked()
+                                            if Theme::secondary_button(ui, "Quitter").clicked()
                                             {
                                                 ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                                             }
@@ -295,7 +293,7 @@ impl eframe::App for MtgDeckAssistantApp {
                                         ui.add_space(6.0);
                                         Theme::meta(
                                             ui,
-                                            "Recruter une carte · Sabotage (retirer) · Lever le poing (valider) · Se replier",
+                                            "Ajouter une carte · Retirer · Valider le deck · Quitter",
                                         );
                                     });
                             });
