@@ -19,7 +19,6 @@ impl DbEngine {
             DbEngine::Postgres => "PostgreSQL",
         }
     }
-
 }
 
 impl Default for DbEngine {
@@ -37,7 +36,12 @@ pub enum AiProvider {
 }
 
 impl AiProvider {
-    pub const ALL: [AiProvider; 4] = [AiProvider::Mistral, AiProvider::OpenAi, AiProvider::Anthropic, AiProvider::Google];
+    pub const ALL: [AiProvider; 4] = [
+        AiProvider::Mistral,
+        AiProvider::OpenAi,
+        AiProvider::Anthropic,
+        AiProvider::Google,
+    ];
 
     pub fn label(&self) -> &'static str {
         match self {

@@ -6,8 +6,7 @@ use crate::storage_handle::StorageHandle;
 pub struct DeckState {
     pub rt: tokio::runtime::Handle,
     pub deck: Deck,
-    pub import_rx:
-        Option<tokio::sync::mpsc::Receiver<(bool, String, Option<Deck>)>>,
+    pub import_rx: Option<tokio::sync::mpsc::Receiver<(bool, String, Option<Deck>)>>,
     pub storage: StorageHandle,
 }
 

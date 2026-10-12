@@ -310,7 +310,11 @@ fn draw_curve(ui: &mut egui::Ui, deck_state: &DeckState) {
     let max = stats.curve.max().max(1) as f32;
     let bars: Vec<(String, u32)> = (0..=7u32)
         .map(|cmc| {
-            let label = if cmc == 7 { "7+".into() } else { cmc.to_string() };
+            let label = if cmc == 7 {
+                "7+".into()
+            } else {
+                cmc.to_string()
+            };
             (label, stats.curve.get(cmc))
         })
         .collect();
@@ -318,10 +322,8 @@ fn draw_curve(ui: &mut egui::Ui, deck_state: &DeckState) {
     let bar_width = 34.0_f32;
     let gap = 10.0_f32;
     let total_width = bars.len() as f32 * (bar_width + gap);
-    let (_, plot_rect) = ui.allocate_exact_size(
-        egui::vec2(total_width, height + 18.0),
-        egui::Sense::hover(),
-    );
+    let (_, plot_rect) =
+        ui.allocate_exact_size(egui::vec2(total_width, height + 18.0), egui::Sense::hover());
     let origin = egui::pos2(plot_rect.rect.min.x, plot_rect.rect.max.y - 16.0);
     ui.painter().line_segment(
         [

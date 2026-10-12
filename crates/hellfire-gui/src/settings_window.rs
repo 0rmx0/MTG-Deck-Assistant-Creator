@@ -55,11 +55,7 @@ impl SettingsWindow {
                     .width(160.0)
                     .show_ui(ui, |ui| {
                         for engine in DbEngine::ALL {
-                            ui.selectable_value(
-                                &mut settings.db_engine,
-                                engine,
-                                engine.label(),
-                            );
+                            ui.selectable_value(&mut settings.db_engine, engine, engine.label());
                         }
                     });
             });
@@ -82,7 +78,10 @@ impl SettingsWindow {
                             settings.sqlite_path = None;
                         }
                     });
-                    Theme::meta(ui, "SQLite : zéro serveur, zéro supply chain — le fichier et toi.");
+                    Theme::meta(
+                        ui,
+                        "SQLite : zéro serveur, zéro supply chain — le fichier et toi.",
+                    );
                 }
                 DbEngine::Postgres => {
                     let pg = &mut settings.postgres;
@@ -102,7 +101,10 @@ impl SettingsWindow {
                         ui.label("Utilisateur :");
                         ui.text_edit_singleline(&mut pg.user);
                     });
-                    Theme::meta(ui, "Le mot de passe PostgreSQL sera demandé à la connexion.");
+                    Theme::meta(
+                        ui,
+                        "Le mot de passe PostgreSQL sera demandé à la connexion.",
+                    );
                 }
             }
 

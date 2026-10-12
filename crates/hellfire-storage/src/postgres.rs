@@ -48,7 +48,9 @@ impl DeckStore for PostgresStore {
     }
 
     fn load_deck(&mut self, id: i64) -> StorageResult<Option<Deck>> {
-        let rows = self.client.query("SELECT data FROM decks WHERE id = $1", &[&id])?;
+        let rows = self
+            .client
+            .query("SELECT data FROM decks WHERE id = $1", &[&id])?;
         match rows.first() {
             Some(row) => {
                 let data: String = row.get(0);
@@ -59,7 +61,9 @@ impl DeckStore for PostgresStore {
     }
 
     fn list_decks(&mut self) -> StorageResult<Vec<(i64, String, String)>> {
-        let rows = self.client.query("SELECT id, name, format FROM decks ORDER BY id DESC", &[])?;
+        let rows = self
+            .client
+            .query("SELECT id, name, format FROM decks ORDER BY id DESC", &[])?;
         Ok(rows
             .iter()
             .map(|r| (r.get(0), r.get(1), r.get(2)))
@@ -67,8 +71,8 @@ impl DeckStore for PostgresStore {
     }
 
     fn delete_deck(&mut self, id: i64) -> StorageResult<()> {
-        self.client.execute("DELETE FROM decks WHERE id = $1", &[&id])?;
+        self.client
+            .execute("DELETE FROM decks WHERE id = $1", &[&id])?;
         Ok(())
     }
 }
-

@@ -178,10 +178,8 @@ impl ScryfallClient {
     /// Récupère plusieurs cartes par identifiant Scryfall.
     pub async fn collection(&self, ids: &[String]) -> ApiResult<Vec<Card>> {
         let url = format!("{BASE}/cards/collection");
-        let body: Vec<serde_json::Value> = ids
-            .iter()
-            .map(|i| serde_json::json!({ "id": i }))
-            .collect();
+        let body: Vec<serde_json::Value> =
+            ids.iter().map(|i| serde_json::json!({ "id": i })).collect();
         let resp: serde_json::Value = self
             .http
             .post(url)

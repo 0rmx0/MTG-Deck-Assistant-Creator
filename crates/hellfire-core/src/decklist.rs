@@ -99,7 +99,6 @@ fn parse_entry(line: &str) -> Option<DeckListEntry> {
     })
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -133,13 +132,16 @@ SB: 2 Red Elemental Blast
 ";
         let entries = parse_decklist(text).unwrap();
         assert_eq!(entries.len(), 4);
-        assert_eq!(entries[0], DeckListEntry {
-            quantity: 4,
-            name: "Lightning Bolt".into(),
-            set_code: None,
-            collector_number: None,
-            sideboard: false,
-        });
+        assert_eq!(
+            entries[0],
+            DeckListEntry {
+                quantity: 4,
+                name: "Lightning Bolt".into(),
+                set_code: None,
+                collector_number: None,
+                sideboard: false,
+            }
+        );
         assert_eq!(entries[1].quantity, 4);
         assert_eq!(entries[1].name, "Shock");
         assert!(entries[2].sideboard);
@@ -150,7 +152,9 @@ SB: 2 Red Elemental Blast
 
     #[test]
     fn rejects_garbage_lines() {
-        let err = parse_decklist("Cavalerie ninja mécanisée").unwrap_err().to_string();
+        let err = parse_decklist("Cavalerie ninja mécanisée")
+            .unwrap_err()
+            .to_string();
         assert!(err.contains("ligne 1 illisible"), "{err}");
     }
 

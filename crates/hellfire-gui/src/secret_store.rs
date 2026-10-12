@@ -32,7 +32,11 @@ pub fn load_secret(provider: AiProvider) -> Option<String> {
     let path = secrets_dir().ok()?.join(provider_file(provider));
     fs::read_to_string(path).ok().and_then(|s| {
         let s = s.trim().to_string();
-        if s.is_empty() { None } else { Some(s) }
+        if s.is_empty() {
+            None
+        } else {
+            Some(s)
+        }
     })
 }
 

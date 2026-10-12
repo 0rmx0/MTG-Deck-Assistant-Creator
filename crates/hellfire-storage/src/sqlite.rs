@@ -66,9 +66,15 @@ impl DeckStore for SqliteStore {
     }
 
     fn list_decks(&mut self) -> StorageResult<Vec<(i64, String, String)>> {
-        let mut stmt = self.conn.prepare("SELECT id, name, format FROM decks ORDER BY id DESC")?;
+        let mut stmt = self
+            .conn
+            .prepare("SELECT id, name, format FROM decks ORDER BY id DESC")?;
         let rows = stmt.query_map([], |row| {
-            Ok((row.get::<_, i64>(0)?, row.get::<_, String>(1)?, row.get::<_, String>(2)?))
+            Ok((
+                row.get::<_, i64>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+            ))
         })?;
         let mut out = Vec::new();
         for r in rows {
@@ -78,7 +84,8 @@ impl DeckStore for SqliteStore {
     }
 
     fn delete_deck(&mut self, id: i64) -> StorageResult<()> {
-        self.conn.execute("DELETE FROM decks WHERE id = ?1", params![id])?;
+        self.conn
+            .execute("DELETE FROM decks WHERE id = ?1", params![id])?;
         Ok(())
     }
 }
