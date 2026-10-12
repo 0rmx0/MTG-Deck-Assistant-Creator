@@ -4,7 +4,6 @@ members = [
     "crates/hellfire-core",
     "crates/hellfire-api",
     "crates/hellfire-storage",
-    "crates/hellfire-tui",
     "crates/hellfire-gui",
 ]
 

@@ -15,12 +15,6 @@ Interface graphique (egui) :
 cargo run -p hellfire-gui
 ```
 
-Interface terminal (ratatui, charte Hellfire) :
-
-```bash
-cargo run -p hellfire-tui
-```
-
 Menu **Fichier → Paramètres…** (GUI) pour configurer :
 
 - **Base de données** : moteur **SQLite** (chemin de fichier) ou
@@ -37,7 +31,6 @@ crates/
 ├── hellfire-core     Cartes, decks, formats, courbe de mana (pur, testable)
 ├── hellfire-api      Clients Scryfall + EDHREC (reqwest, async)
 ├── hellfire-storage  Persistance SQLite (rusqlite) / PostgreSQL
-├── hellfire-tui      Interface terminal (ratatui) — charte Hellfire
 └── hellfire-gui      Interface graphique (egui) — paramètres, secret store
 ```
 
@@ -48,9 +41,6 @@ crates/
   pour les recommandations Commander par identité de couleur.
 - **hellfire-storage** : trait `DeckStore` implémenté pour SQLite (fichier
   ou mémoire) et PostgreSQL (JSONB).
-- **hellfire-tui** : interface sombre selon la charte (voir
-  `crates/hellfire-tui/src/theme.rs`) : 70 % noirs / bruns, 20 % blancs /
-  gris, 10 % accents néon (corail dominant, cyan en contrepoint).
 - **hellfire-gui** : application egui avec menu Paramètres (moteur DB,
   fournisseur IA, clé API masquée) et secret store local sécurisé.
 
@@ -64,7 +54,7 @@ cargo test
 
 L'identité visuelle (palette, typographie, ton éditorial VOX POPULI) est
 décrite dans `docs/charte.md` et encodée dans
-`crates/hellfire-tui/src/theme.rs`.
+`crates/hellfire-gui/src/theme.rs`.
 
 ## Licence
 
