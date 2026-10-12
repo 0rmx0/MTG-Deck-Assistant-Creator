@@ -1708,8 +1708,12 @@ version = "0.1.0"
 dependencies = [
  "directories",
  "eframe",
+ "hellfire-api",
+ "hellfire-core",
+ "hellfire-storage",
  "serde",
  "serde_json",
+ "tokio",
 ]
 
 [[package]]

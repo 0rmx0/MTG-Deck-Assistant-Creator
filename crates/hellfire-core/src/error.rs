@@ -6,6 +6,8 @@ pub enum CoreError {
     CardNotFound(String),
     #[error("deck invalide: {0}")]
     InvalidDeck(String),
+    #[error("decklist invalide: {0}")]
+    Decklist(String),
     #[error("erreur de sérialisation: {0}")]
     Serde(#[from] serde_json::Error),
 }

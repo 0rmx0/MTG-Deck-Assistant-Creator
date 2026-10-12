@@ -1,6 +1,8 @@
+pub mod decklist;
 pub mod scryfall;
 pub mod edhrec;
 
+pub use decklist::DeckListImport;
 pub use scryfall::ScryfallClient;
 pub use edhrec::EdhrecClient;
 
