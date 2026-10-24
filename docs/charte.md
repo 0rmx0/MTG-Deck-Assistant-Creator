@@ -1,59 +1,71 @@
-# Charte graphique — Hellfire Deckbuilder
+# Charte graphique R_M_X — Hellfire Deck Assistant
 
-Identité : punk underground rebelle, gravure/scratchboard, clair-obscur
-dramatique, masque cousu comme emblème.
+Identité : noir profond lo-fi + néons rares + couches cachées. Esthétique
+lostwave/punk où la nudité technique est assumée et où ce qui est caché vaut
+plus que ce qui est visible.
 
 Les tokens couleur sont encodés dans `crates/hellfire-gui/src/theme.rs`
 (constantes `Theme::*`, valeurs RGB identiques aux hex de la charte).
 
-## Territoire visuel
+## Règles universelles
 
-- Gravure/scratchboard au trait, hachures denses, grain charbon.
-- Clair-obscur fort ; les éléments percent la pénombre par accents néon.
-- Interdits : dégradés SaaS, ombres douces, coins très arrondis, pastels.
+- **Dark-first** : fond `#111111`, surfaces `#222222`, texte `#FFFFFF` / `#CCCCCC`.
+- **Règle 80/15/5** : ~80 % de noirs, ~15 % de blancs/gris, ~5 % d'accents
+  (cyan `#00FFFF`, magenta `#FF00FF`, vert terminal `#00FF7F`).
+  Le néon ne brille que sur du noir ; jamais plus d'un accent par zone.
+- **Rayon unique 10 px**, halo discret `rgba(255,255,255,0.1)` (≈ `#1C1C1C`),
+  hover `scale(1.05)` en `transform 0.2s ease` — le seul effet de mouvement
+  autorisé (`animation_time = 0.2` dans egui).
+- **Focus clavier visible en cyan** — l'accessibilité fait partie du style.
+- **Lo-fi assumé** : texte machine (base64, IDs, stats) en monospace, vert
+  terminal sur noir.
+- **Une couche cachée minimum** (voir plus bas) — la signature R_M_X. Elle
+  n'est jamais expliquée dans l'interface.
 
-## Palette (règle 70/20/10)
+## Interdits
 
-| Rôle              | Nom          | Hex       | Constante           |
-|-------------------|--------------|-----------|--------------------|
-| Fond principal    | Noir bitume  | `#0A0A0A` | `BG_PRIMARY`       |
-| Fond secondaire   | Charbon      | `#1A1714` | `BG_SECONDARY`     |
-| Élévation         | Brun sombre  | `#3C2818` | `BG_ELEVATED`      |
-| Texte principal   | Blanc craie  | `#F2EFE9` | `TEXT_PRIMARY`     |
-| Texte secondaire | Gris os      | `#9A938A` | `TEXT_SECONDARY`   |
-| Accent 1 (CTA)    | Corail rebelle | `#FF4E3A` | `CORAL`          |
-| Accent 2 (liens)  | Cyan insurgé  | `#00E5E5` | `CYAN`            |
-| Accent 3 (stats)  | Orange fournaise | `#FF8C00` | `EMBER`         |
+Fond clair, pastel, bleu corporate, dégradés SaaS, ombres portées dures,
+expliquer ou spoiler les couches cachées, supprimer du contenu (on retire de
+l'état, on n'efface pas).
 
-~70 % noirs/bruns, ~20 % blancs/gris, ~10 % néon (corail dominant).
-Jamais plus d'un accent néon par zone. Jamais de corail sur cyan.
+## Palette
+
+| Rôle             | Nom           | Hex       | Constante         |
+|------------------|---------------|-----------|-------------------|
+| Fond principal   | Noir profond  | `#111111` | `BG_PRIMARY`      |
+| Surface          | Anthracite   | `#222222` | `BG_SECONDARY`    |
+| Halo discret     | Blanc 10 %   | `#1C1C1C` | `HALO`            |
+| Texte principal  | Blanc         | `#FFFFFF` | `TEXT_PRIMARY`    |
+| Texte secondaire| Gris          | `#CCCCCC` | `TEXT_SECONDARY`  |
+| Accent 1 (CTA/UX)| Cyan néon     | `#00FFFF` | `CYAN`            |
+| Accent 2 (erreur)| Magenta néon  | `#FF00FF` | `MAGENTA`         |
+| Accent 3 (données)| Vert terminal | `#00FF7F` | `TERMINAL`       |
 
 ## Couleurs MTG (adaptées sombres)
 
 Blanc `#EDE5D0`, Bleu `#2E6FA3`, Noir `#4B3B57`, Rouge `#C43A2F`,
-Vert `#3F7A4A`, Artefact `#8C8577`, Multicolore = dégradé corail→cyan.
+Vert `#3F7A4A`, Artefact `#8C8577`.
 
 ## Typographie
 
-- Titres/logo : Pirata One / Special Elite, MAJUSCULES, letter-spacing ≥ 0.08em.
-- Corps/UI : Barlow Condensed.
-- Chiffres/stats : IBM Plex Mono.
+- Titres/logo : MAJUSCULES, police display (HelpMe en web ; fallback
+  system-ui dans la GUI native).
+- Corps/UI : system-ui / sans-serif brute — pas de police « design ».
+- Données (base64, stats, mana, IDs) : monospace, vert terminal sur noir.
 
 ## Composants
 
-- Cartes de deck : fond `#1A1714`, bordure 1 px `#3C2818`, coins 2 px.
-  Hover : bordure corail, décalage −2 px (effet pochoir).
-- Badge format : rectangle noir, texte cyan, coin biseauté.
-- Boutons : primaire corail/texte noir, secondaire bordure gris os.
-  Jamais de dégradé ni d'ombre portée.
-- Courbe de mana : barres corail (créatures) / cyan (sorts) / orange (lands).
-- Toasts : bandeau noir, bordure gauche 4 px (corail erreur / cyan info /
-  orange succès).
+- Panneaux/cartes : fond `#222`, bordure 1 px halo `#1C1C1C`, rayon 10 px.
+- Boutons : primaire bordure et texte cyan, secondaire bordure et texte gris.
+- Badges format : surface `#222`, texte cyan, rayon 10 px.
+- Courbe de mana : barres cyan, valeurs en vert terminal monospace.
+- Toasts : bandeau `#222`, bordure gauche 4 px
+  (magenta erreur / cyan info / vert terminal succès).
+- Sélection : fond `#222`, liseré cyan.
 
-## Motion
+## Slogan
 
-Transitions sèches 120–180 ms, `steps(3)` ou linéaire. Apparition des
-cartes : fade 150 ms + offset 4 px. Aucun rebond, aucune parallaxe.
+Un slogan pochoir orne le header : « NO GODS NO MASTERS NO CORPORATIONS ».
 
 ## Ton éditorial (VOX POPULI)
 

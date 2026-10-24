@@ -173,9 +173,9 @@ impl eframe::App for MtgDeckAssistantApp {
             )
             .show(ctx, |ui| {
                 let (color, symbol) = if !self.status.0 {
-                    (Theme::CORAL, "!!")
+                    (Theme::MAGENTA, "!!")
                 } else if self.status.1.contains("validé") {
-                    (Theme::EMBER, "✔")
+                    (Theme::TERMINAL, "✔")
                 } else {
                     (Theme::CYAN, "»")
                 };
@@ -195,7 +195,7 @@ impl eframe::App for MtgDeckAssistantApp {
                         ui.add_space(12.0);
                         ui.label(
                             egui::RichText::new(format!("⚠ {w}"))
-                                .color(Theme::CORAL)
+                                .color(Theme::MAGENTA)
                                 .monospace(),
                         );
                     }
@@ -206,7 +206,7 @@ impl eframe::App for MtgDeckAssistantApp {
             .frame(
                 egui::Frame::none()
                     .fill(Theme::BG_SECONDARY)
-                    .stroke(egui::Stroke::new(1.0_f32, Theme::BG_ELEVATED))
+                    .stroke(egui::Stroke::new(1.0_f32, Theme::HALO))
                     .inner_margin(egui::Margin::same(12.0)),
             )
             .show(ctx, |ui| {
@@ -214,7 +214,7 @@ impl eframe::App for MtgDeckAssistantApp {
                     ui.vertical(|ui| {
                         Theme::logotype(ui);
                         ui.add_space(4.0);
-                        Theme::meta(ui, "MASQUE COUSU · LE DECK EST UNE ARME");
+                        Theme::meta(ui, "NO GODS NO MASTERS NO CORPORATIONS");
                         ui.add_space(2.0);
                         let stats = self.deck_state.deck.stats();
                         ui.horizontal(|ui| {
@@ -231,7 +231,7 @@ impl eframe::App for MtgDeckAssistantApp {
                                     "{} cartes recrutées · CMC moyen {:.2}",
                                     stats.total_cards, stats.avg_cmc
                                 ))
-                                .color(Theme::EMBER)
+                                .color(Theme::TERMINAL)
                                 .monospace(),
                             );
                         });
@@ -239,8 +239,8 @@ impl eframe::App for MtgDeckAssistantApp {
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         ui.add(
                             egui::Label::new(
-                                egui::RichText::new("X--X\n | |\n~~~~~")
-                                    .color(Theme::CORAL)
+                                egui::RichText::new("0\nrm\nX0")
+                                    .color(Theme::MAGENTA)
                                     .monospace(),
                             )
                             .extend(),
@@ -294,8 +294,8 @@ impl MtgDeckAssistantApp {
                 .frame(
                     egui::Frame::group(ui.style())
                         .fill(Theme::BG_SECONDARY)
-                        .stroke(egui::Stroke::new(1.0_f32, Theme::BG_ELEVATED))
-                        .rounding(egui::Rounding::same(2.0))
+                        .stroke(egui::Stroke::new(1.0_f32, Theme::HALO))
+                        .rounding(egui::Rounding::same(10.0))
                         .inner_margin(egui::Margin::same(10.0)),
                 )
                 .show_inside(ui, |ui| {
@@ -312,7 +312,7 @@ impl MtgDeckAssistantApp {
                             ui.horizontal(|ui| {
                                 ui.label(
                                     egui::RichText::new(format!("{:>2}x ", entry.quantity))
-                                        .color(Theme::EMBER)
+                                        .color(Theme::TERMINAL)
                                         .monospace()
                                         .strong(),
                                 );
@@ -342,8 +342,8 @@ impl MtgDeckAssistantApp {
                             .frame(
                                 egui::Frame::group(ui.style())
                                     .fill(Theme::BG_SECONDARY)
-                                    .stroke(egui::Stroke::new(1.0_f32, Theme::BG_ELEVATED))
-                                    .rounding(egui::Rounding::same(2.0))
+                                    .stroke(egui::Stroke::new(1.0_f32, Theme::HALO))
+                                    .rounding(egui::Rounding::same(10.0))
                                     .inner_margin(egui::Margin::same(10.0)),
                             )
                             .show_inside(ui, |ui| {
@@ -359,8 +359,8 @@ impl MtgDeckAssistantApp {
                             .show_inside(ui, |ui| {
                                 egui::Frame::group(ui.style())
                                     .fill(Theme::BG_SECONDARY)
-                                    .stroke(egui::Stroke::new(1.0_f32, Theme::BG_ELEVATED))
-                                    .rounding(egui::Rounding::same(2.0))
+                                    .stroke(egui::Stroke::new(1.0_f32, Theme::HALO))
+                                    .rounding(egui::Rounding::same(10.0))
                                     .inner_margin(egui::Margin::same(10.0))
                                     .show(ui, |ui| {
                                         Theme::heading(ui, "ACTIONS");
@@ -409,6 +409,8 @@ impl MtgDeckAssistantApp {
                                             ui,
                                             "Ajouter une carte · Retirer · Valider le deck · Quitter",
                                         );
+                                        ui.add_space(8.0);
+                                        hidden_layer(ui);
                                     });
                             });
                     });
@@ -424,8 +426,8 @@ impl MtgDeckAssistantApp {
         let total: u32 = collection.iter().map(|(_, q)| q).sum();
         egui::Frame::group(ui.style())
             .fill(Theme::BG_SECONDARY)
-            .stroke(egui::Stroke::new(1.0_f32, Theme::BG_ELEVATED))
-            .rounding(egui::Rounding::same(2.0))
+            .stroke(egui::Stroke::new(1.0_f32, Theme::HALO))
+            .rounding(egui::Rounding::same(10.0))
             .inner_margin(egui::Margin::same(10.0))
             .show(ui, |ui| {
                 Theme::heading(ui, "MA COLLECTION");
@@ -450,7 +452,7 @@ impl MtgDeckAssistantApp {
                         ui.horizontal(|ui| {
                             ui.label(
                                 egui::RichText::new(format!("{qty:>3}x "))
-                                    .color(Theme::EMBER)
+                                    .color(Theme::TERMINAL)
                                     .monospace()
                                     .strong(),
                             );
@@ -482,8 +484,8 @@ impl MtgDeckAssistantApp {
         let decks = self.deck_state.storage.list_decks().unwrap_or_default();
         egui::Frame::group(ui.style())
             .fill(Theme::BG_SECONDARY)
-            .stroke(egui::Stroke::new(1.0_f32, Theme::BG_ELEVATED))
-            .rounding(egui::Rounding::same(2.0))
+            .stroke(egui::Stroke::new(1.0_f32, Theme::HALO))
+            .rounding(egui::Rounding::same(10.0))
             .inner_margin(egui::Margin::same(10.0))
             .show(ui, |ui| {
                 Theme::heading(ui, "MES DECKS");
@@ -572,7 +574,7 @@ fn draw_curve(ui: &mut egui::Ui, deck_state: &DeckState) {
             egui::pos2(origin.x, origin.y),
             egui::pos2(origin.x + total_width, origin.y),
         ],
-        egui::Stroke::new(1.0_f32, Theme::BG_ELEVATED),
+        egui::Stroke::new(1.0_f32, Theme::HALO),
     );
     for (i, (label, value)) in bars.iter().enumerate() {
         let x = origin.x + i as f32 * (bar_width + gap);
@@ -583,7 +585,7 @@ fn draw_curve(ui: &mut egui::Ui, deck_state: &DeckState) {
         );
         if filled > 0.0 {
             ui.painter()
-                .rect_filled(rect, egui::Rounding::same(0.0_f32), Theme::CORAL);
+                .rect_filled(rect, egui::Rounding::same(2.0_f32), Theme::CYAN);
         } else {
             ui.painter().rect_filled(
                 egui::Rect::from_min_max(
@@ -591,7 +593,7 @@ fn draw_curve(ui: &mut egui::Ui, deck_state: &DeckState) {
                     egui::pos2(x + bar_width, origin.y),
                 ),
                 egui::Rounding::same(0.0_f32),
-                Theme::BG_ELEVATED,
+                Theme::BG_SECONDARY,
             );
         }
         ui.painter().text(
@@ -607,8 +609,21 @@ fn draw_curve(ui: &mut egui::Ui, deck_state: &DeckState) {
                 egui::Align2::CENTER_CENTER,
                 value.to_string(),
                 egui::FontId::monospace(10.0),
-                Theme::EMBER,
+                Theme::TERMINAL,
             );
         }
     }
+}
+
+/// Couche cachée : message base64 rendu tel quel, discret en bas de page.
+fn hidden_layer(ui: &mut egui::Ui) {
+    ui.add(
+        egui::Label::new(
+            egui::RichText::new("UkVHQVJERSBBIEwgSU5URVJJRVVSIERVIFNPTg==")
+                .color(Theme::BG_SECONDARY)
+                .monospace()
+                .small(),
+        )
+        .extend(),
+    );
 }

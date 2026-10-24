@@ -2,6 +2,7 @@ use eframe::egui;
 use hellfire_core::decklist;
 
 use crate::deck_state::DeckState;
+use crate::theme::Theme;
 
 pub struct ImportWindow {
     pub open: bool,
@@ -85,14 +86,7 @@ impl ImportWindow {
 
         if let Some((ok, msg)) = &self.status {
             ui.add_space(4.0);
-            ui.colored_label(
-                if *ok {
-                    egui::Color32::from_rgb(140, 200, 120)
-                } else {
-                    egui::Color32::from_rgb(235, 100, 90)
-                },
-                msg,
-            );
+            Theme::toast(ui, *ok, msg);
         }
     }
 
