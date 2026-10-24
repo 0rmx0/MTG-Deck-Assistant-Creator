@@ -5,7 +5,10 @@ fn stub(id: &str, name: &str, types: &str, cost: Option<u32>) -> Card {
     Card {
         scryfall_id: id.into(),
         name: name.into(),
-        mana_cost: cost.map(|c| ManaCost { generic: c, ..Default::default() }),
+        mana_cost: cost.map(|c| ManaCost {
+            generic: c,
+            ..Default::default()
+        }),
         type_line: types.into(),
         oracle_text: String::new(),
         colors: Colors::default(),
@@ -31,7 +34,8 @@ fn recruit_and_sabotage() {
 #[test]
 fn validate_min_size() {
     let mut d = Deck::new("Manifestation", Format::Modern);
-    d.recruit(stub("2", "Rag Man", "Creature — Human", Some(2)), 4, false).unwrap();
+    d.recruit(stub("2", "Rag Man", "Creature — Human", Some(2)), 4, false)
+        .unwrap();
     let err = d.validate().unwrap_err().to_string();
     assert!(err.contains("il en faut 60"), "{err}");
 }
@@ -46,7 +50,8 @@ fn mana_cost_parse() {
 #[test]
 fn curve_buckets() {
     let mut d = Deck::new("Feu", Format::Standard);
-    d.recruit(stub("3", "Ash", "Creature", Some(9)), 2, false).unwrap();
+    d.recruit(stub("3", "Ash", "Creature", Some(9)), 2, false)
+        .unwrap();
     let st = d.stats();
     assert_eq!(st.curve.get(7), 2);
 }

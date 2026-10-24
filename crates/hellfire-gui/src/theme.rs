@@ -49,6 +49,7 @@ impl Theme {
         ] {
             *corner = egui::Rounding::same(10.0_f32);
         }
+
         // Halo discret rgba(255,255,255,0.1) ≈ #1B1B1B sur #111, pas d'ombre dure.
         style.visuals.window_stroke = egui::Stroke::new(1.0_f32, Self::HALO);
         style.visuals.widgets.noninteractive.bg_stroke = egui::Stroke::new(1.0_f32, Self::HALO);
@@ -192,9 +193,7 @@ impl Theme {
             .rounding(egui::Rounding::same(10.0_f32))
             .inner_margin(egui::Margin::symmetric(8.0, 2.0));
         frame.show(ui, |ui| {
-            ui.add(
-                egui::Label::new(egui::RichText::new(label).color(Self::CYAN).small()).extend(),
-            );
+            ui.add(egui::Label::new(egui::RichText::new(label).color(Self::CYAN).small()).extend());
         });
     }
 }

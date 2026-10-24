@@ -1,10 +1,12 @@
+pub mod ai_deck;
 pub mod decklist;
-pub mod scryfall;
 pub mod edhrec;
+pub mod scryfall;
 
+pub use ai_deck::{AiDeckAssistant, AiDeckCard, AiDeckProposal, AiProviderInfo, DeckCriteria};
 pub use decklist::DeckListImport;
-pub use scryfall::ScryfallClient;
 pub use edhrec::EdhrecClient;
+pub use scryfall::ScryfallClient;
 
 use thiserror::Error;
 

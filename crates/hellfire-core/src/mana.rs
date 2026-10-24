@@ -72,7 +72,13 @@ impl ManaCost {
         if self.generic > 0 {
             s.push_str(&format!("{{{}}}", self.generic));
         }
-        for (n, c) in [(self.white, "W"), (self.blue, "U"), (self.black, "B"), (self.red, "R"), (self.green, "G")] {
+        for (n, c) in [
+            (self.white, "W"),
+            (self.blue, "U"),
+            (self.black, "B"),
+            (self.red, "R"),
+            (self.green, "G"),
+        ] {
             for _ in 0..n {
                 s.push_str(&format!("{{{}}}", c));
             }

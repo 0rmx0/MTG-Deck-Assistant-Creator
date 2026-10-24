@@ -55,11 +55,7 @@ impl SettingsWindow {
                     .width(160.0)
                     .show_ui(ui, |ui| {
                         for engine in DbEngine::ALL {
-                            ui.selectable_value(
-                                &mut settings.db_engine,
-                                engine,
-                                engine.label(),
-                            );
+                            ui.selectable_value(&mut settings.db_engine, engine, engine.label());
                         }
                     });
             });
@@ -82,7 +78,10 @@ impl SettingsWindow {
                             settings.sqlite_path = None;
                         }
                     });
-                    Theme::meta(ui, "SQLite : zéro serveur, zéro supply chain — le fichier et toi.");
+                    Theme::meta(
+                        ui,
+                        "SQLite : zéro serveur, zéro supply chain — le fichier et toi.",
+                    );
                 }
                 DbEngine::Postgres => {
                     let pg = &mut settings.postgres;
@@ -102,7 +101,10 @@ impl SettingsWindow {
                         ui.label("Utilisateur :");
                         ui.text_edit_singleline(&mut pg.user);
                     });
-                    Theme::meta(ui, "Le mot de passe PostgreSQL sera demandé à la connexion.");
+                    Theme::meta(
+                        ui,
+                        "Le mot de passe PostgreSQL sera demandé à la connexion.",
+                    );
                 }
             }
 
@@ -145,7 +147,7 @@ impl SettingsWindow {
                     .desired_width(320.0)
                     .password(!self.show_key)
                     .hint_text(if has_stored_key {
-                        "•••••••• (clé planquée)"
+                        "•••••••• (clé enregistrée)"
                     } else {
                         "Colle ta clé API ici"
                     });
@@ -160,7 +162,7 @@ impl SettingsWindow {
 
             let key_note = if has_stored_key {
                 format!(
-                    "Une clé est planquée pour {}.",
+                    "Une clé est enregistrée pour {}.",
                     settings.ai_provider.label()
                 )
             } else {
@@ -173,16 +175,16 @@ impl SettingsWindow {
                     match save_api_key(settings, &self.api_key_input) {
                         Ok(()) => {
                             self.status =
-                                Some((true, "Clé API planquée dans le coffre système.".into()));
+                                Some((true, "Clé API enregistrée dans le coffre système.".into()));
                             self.api_key_input.clear();
                         }
                         Err(e) => self.status = Some((false, format!("Erreur : {e}"))),
                     }
                 }
-                if has_stored_key && Theme::secondary_button(ui, "Sabotage de la clé").clicked() {
+                if has_stored_key && Theme::secondary_button(ui, "Supprimer").clicked() {
                     match remove_api_key(settings) {
                         Ok(()) => {
-                            self.status = Some((true, "Clé API sabotée, plus rien en place.".into()));
+                            self.status = Some((true, "Clé API supprimée.".into()));
                             self.api_key_input.clear();
                         }
                         Err(e) => self.status = Some((false, format!("Erreur : {e}"))),
@@ -193,15 +195,15 @@ impl SettingsWindow {
             Theme::cutter_separator(ui);
 
             ui.horizontal(|ui| {
-                if Theme::primary_button(ui, "Lever le poing").clicked() {
+                if Theme::primary_button(ui, "Enregistrer").clicked() {
                     match settings.save() {
-                        Ok(()) => self.status = Some((true, "Paramètres gravés dans le marbre.".into())),
+                        Ok(()) => self.status = Some((true, "Paramètres enregistrés.".into())),
                         Err(e) => self.status = Some((false, format!("Erreur : {e}"))),
                     }
                 }
-                if Theme::secondary_button(ui, "Rétablir").clicked() {
+                if Theme::secondary_button(ui, "Réinitialiser").clicked() {
                     *settings = Settings::default();
-                    self.status = Some((true, "Paramètres remis à zéro, page blanche.".into()));
+                    self.status = Some((true, "Paramètres réinitialisés.".into()));
                 }
             });
 
